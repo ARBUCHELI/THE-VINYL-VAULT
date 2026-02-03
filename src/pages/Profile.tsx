@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { z } from "zod";
-import { User as UserIcon, Mail } from "lucide-react";
+import { User as UserIcon, Mail, Upload, Loader2 } from "lucide-react";
 
 const profileSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters").max(20),
@@ -23,6 +23,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [profile, setProfile] = useState<any>(null);
   const [formData, setFormData] = useState({
     username: "",
@@ -61,6 +62,67 @@ const Profile = () => {
       });
     }
     setLoading(false);
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !profile) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file');
+      return;
+    }
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Image must be less than 2MB');
+      return;
+    }
+
+    try {
+      setUploading(true);
+
+      // Delete old avatar if exists
+      if (profile.avatar_url) {
+        const oldPath = profile.avatar_url.split('/').pop();
+        if (oldPath) {
+          await supabase.storage
+            .from('avatars')
+            .remove([`${profile.id}/${oldPath}`]);
+        }
+      }
+
+      // Upload new avatar
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${profile.id}/${Date.now()}.${fileExt}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(fileName);
+
+      // Update profile with new avatar URL
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('id', profile.id);
+
+      if (updateError) throw updateError;
+
+      toast.success('Avatar updated successfully!');
+      fetchProfile(profile.id);
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to upload avatar');
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -117,15 +179,38 @@ const Profile = () => {
           <Card>
             <CardHeader>
               <div className="flex items-center space-x-4">
-                <Avatar className="h-20 w-20">
-                  <AvatarImage src={profile?.avatar_url || undefined} />
-                  <AvatarFallback className="text-2xl">
-                    {profile?.username?.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
+                <div className="relative">
+                  <Avatar className="h-20 w-20">
+                    <AvatarImage src={profile?.avatar_url || undefined} />
+                    <AvatarFallback className="text-2xl">
+                      {profile?.username?.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <label
+                    htmlFor="avatar-upload"
+                    className="absolute -bottom-2 -right-2 bg-primary text-primary-foreground rounded-full p-2 cursor-pointer hover:bg-primary/90 transition-colors shadow-lg"
+                  >
+                    {uploading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Upload className="h-4 w-4" />
+                    )}
+                  </label>
+                  <input
+                    id="avatar-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarUpload}
+                    className="hidden"
+                    disabled={uploading}
+                  />
+                </div>
                 <div>
                   <CardTitle>Your Profile</CardTitle>
                   <CardDescription>Update your personal information</CardDescription>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Click the upload icon to change your avatar
+                  </p>
                 </div>
               </div>
             </CardHeader>

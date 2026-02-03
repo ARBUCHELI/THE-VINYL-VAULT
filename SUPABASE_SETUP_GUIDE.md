@@ -51,6 +51,13 @@ File: `supabase/migrations/20260203000000_increment_post_views.sql`
 
 Adds a function to atomically increment post view counts.
 
+#### Migration 6: Avatar Storage
+File: `supabase/migrations/20260203200000_create_avatars_storage.sql`
+
+Creates a storage bucket for user avatars with RLS policies:
+- Users can upload, update, and delete their own avatars
+- Anyone can view all avatars (public bucket)
+
 ### 3. Deploy Edge Functions
 
 ```bash
@@ -238,14 +245,14 @@ await callEdgeFunction('post-handler', 'create-post', postData, token)
 
 ## Next Steps
 
-1. ✅ Run all migrations
+1. ✅ Run all migrations (including avatar storage)
 2. ✅ Deploy edge functions (optional)
 3. ✅ Create your admin user
 4. ✅ Test authentication flow
-5. ✅ Create sample posts
-6. ✅ Test commenting system
-7. Configure email templates (Settings > Auth > Email Templates)
-8. Set up storage buckets for image uploads (optional)
+5. ✅ Test avatar upload functionality
+6. ✅ Create sample posts
+7. ✅ Test commenting system
+8. Configure email templates (Settings > Auth > Email Templates)
 9. Configure custom domain (optional)
 
 ## Support
