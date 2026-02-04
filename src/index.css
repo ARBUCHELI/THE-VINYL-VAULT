@@ -126,23 +126,66 @@
     @apply bg-background text-foreground;
   }
 
-  /* Custom prose styles for dark theme */
-  .prose {
-    --tw-prose-body: hsl(var(--foreground));
-    --tw-prose-headings: hsl(var(--foreground));
-    --tw-prose-lead: hsl(var(--muted-foreground));
-    --tw-prose-links: hsl(var(--primary));
-    --tw-prose-bold: hsl(var(--foreground));
-    --tw-prose-counters: hsl(var(--muted-foreground));
-    --tw-prose-bullets: hsl(var(--muted-foreground));
-    --tw-prose-hr: hsl(var(--border));
-    --tw-prose-quotes: hsl(var(--foreground));
-    --tw-prose-quote-borders: hsl(var(--primary));
-    --tw-prose-captions: hsl(var(--muted-foreground));
-    --tw-prose-code: hsl(var(--foreground));
-    --tw-prose-pre-code: hsl(var(--foreground));
-    --tw-prose-pre-bg: hsl(var(--muted));
-    --tw-prose-th-borders: hsl(var(--border));
-    --tw-prose-td-borders: hsl(var(--border));
-  }
+}
+
+/* Custom prose styles for dark theme */
+.prose {
+  color: hsl(40 10% 95%);
+}
+
+.prose p,
+.prose li,
+.prose span {
+  color: hsl(40 10% 95%);
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  color: hsl(40 10% 95%);
+}
+
+.prose strong,
+.prose b {
+  color: hsl(40 10% 95%);
+}
+
+.prose a {
+  color: hsl(0 60% 50%);
+}
+
+.prose a:hover {
+  color: hsl(0 60% 60%);
+}
+
+.prose blockquote {
+  color: hsl(40 10% 80%);
+  border-left-color: hsl(0 60% 40%);
+}
+
+.prose code {
+  color: hsl(40 10% 95%);
+  background-color: hsl(220 10% 25%);
+}
+
+.prose pre {
+  background-color: hsl(220 10% 20%);
+  color: hsl(40 10% 95%);
+}
+
+.prose ul > li::marker,
+.prose ol > li::marker {
+  color: hsl(40 10% 70%);
+}
+
+.prose hr {
+  border-color: hsl(220 10% 25%);
+}
+
+.prose th,
+.prose td {
+  border-color: hsl(220 10% 25%);
 }
