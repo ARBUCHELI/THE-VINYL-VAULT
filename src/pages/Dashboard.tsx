@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -12,6 +12,8 @@ import { FileText, Eye, Users, Loader2 } from "lucide-react";
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const editPostId = searchParams.get('edit');
   const [loading, setLoading] = useState(true);
   const [canAccess, setCanAccess] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -131,14 +133,14 @@ const Dashboard = () => {
             </Card>
           </div>
 
-          <Tabs defaultValue="create" className="w-full">
+          <Tabs defaultValue={editPostId ? "create" : "create"} value={editPostId ? "create" : undefined} className="w-full">
             <TabsList className={`grid w-full max-w-md ${isAdmin ? 'grid-cols-3' : 'grid-cols-2'}`}>
-              <TabsTrigger value="create">Create Post</TabsTrigger>
+              <TabsTrigger value="create">{editPostId ? "Edit Post" : "Create Post"}</TabsTrigger>
               <TabsTrigger value="manage">Manage Posts</TabsTrigger>
               {isAdmin && <TabsTrigger value="users">Users</TabsTrigger>}
             </TabsList>
             <TabsContent value="create" className="mt-6">
-              <CreatePost />
+              <CreatePost editPostId={editPostId || undefined} onPostSaved={() => setSearchParams({})} />
             </TabsContent>
             <TabsContent value="manage" className="mt-6">
               <PostManagement />
